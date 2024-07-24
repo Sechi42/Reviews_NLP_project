@@ -40,25 +40,5 @@ Aquí se describen los campos seleccionados:
 
 Hay otros campos en el conjunto de datos, puedes explorarlos si lo deseas.
 
-# Evaluación de proyecto
 
-Hemos recopilado los criterios de evaluación para el proyecto. Léelos con atención antes de pasar al ejercicio:
 
-- Cargaste y preprocesaste los datos de texto para su vectorización.
-- Transformaste los datos de texto en vectores.
-- Definiste, entrenaste y probaste los modelos.
-- Se alcanzó el umbral de la métrica.
-- Colocaste todas las celdas de código en el orden de su ejecución.
-- Puedes ejecutar sin errores todas las celdas de código.
-- Sacaste conclusiones.
-
-Nuestros revisores también observarán la calidad general de tu proyecto:
-
-- ¿Mantuviste la estructura del proyecto?
-- ¿Mantuviste limpio tu código?
-- ¿Conseguiste evitar la duplicación del código?
-- ¿Cuáles fueron tus hallazgos?
-
-Tienes tus hojas informativas y los resúmenes de los capítulos, así que ya puedes continuar con el proyecto.
-
-¡Buena suerte!
