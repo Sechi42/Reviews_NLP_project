@@ -9,6 +9,7 @@ DATAPATH = os.path.join(PACKAGE_ROOT, "datasets")
 DATA_FILE = 'imdb_reviews.tsv'
 TENSOR_FILE = 'features_9.npz'
 
+MODEL_NAME = 'BERT_model.pkl'
 SAVE_MODEL_PATH = os.path.join(PACKAGE_ROOT, 'trained_models')
 
 TARGET = 'pos'
