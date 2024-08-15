@@ -5,7 +5,11 @@ from prediction_model.config import config
 
 def load_dataset(file_name):
     filepath = os.path.join(config.DATA_FILE, file_name)
-    _data = pd.read_csv(filepath, sep='\t', dtype={'votes': 'Int64'})
+    # Verificar si el archivo es .tsv o no
+    if file_name.endswith('.tsv'):
+        _data = pd.read_csv(filepath, sep='\t', dtype={'votes': 'Int64'})
+    else:
+        _data = pd.read_csv(filepath, dtype={'votes': 'Int64'})
     return _data
 
 # Serialization
