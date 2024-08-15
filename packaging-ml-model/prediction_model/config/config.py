@@ -15,10 +15,10 @@ SAVE_MODEL_PATH = os.path.join(PACKAGE_ROOT, 'trained_models')
 TARGET = ['pos']
 
 # Final features use in the model
-FEATURES = ['tconst', 'title_type', 'primary_title', 'original_title', 'start_year',
+FEATURES_TO_REMOVE = ['tconst', 'title_type', 'primary_title', 'original_title', 'start_year',
        'end_year', 'runtime_minutes', 'is_adult', 'genres', 'average_rating',
-       'votes', 'review', 'rating', 'sp', 'ds_part', 'idx',
-       'review_norm']
+       'votes', 'rating', 'sp', 'ds_part', 'idx',
+       'review_norm', 'review']
 
 REVIEW_FEATURES = ['review']
 
