@@ -1,2 +1,5 @@
 features_9.npz
 imdb_reviews.tsv
+.ipynb_checkpoints
+.ipynb_checkpoints/*
+*/.ipynb_checkpoints/*
