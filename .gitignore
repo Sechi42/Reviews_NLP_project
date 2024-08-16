@@ -1,0 +1,15 @@
+__pycache__/
+venv_package/
+.pytest_cache
+.ipynb_checkpoints
+mlruns
+dummy
+.DS_Store
+
+*.npz
+*.tsv
+*.csv
+*.pkl
+*.ipynb
+
+bfg.jar
