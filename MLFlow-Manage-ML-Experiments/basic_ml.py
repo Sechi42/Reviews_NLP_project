@@ -12,6 +12,7 @@ import math
 from tqdm.auto import tqdm
 from transformers import BertTokenizer, BertModel
 import transformers
+from sklearn.preprocessing import StandardScaler
 
 # Función para evaluar el rendimiento del clasificador
 def eval_function(actual, pred):
@@ -111,12 +112,17 @@ def load_data():
         train_features = BERT_text_to_embeddings(X_train)
         test_features = BERT_text_to_embeddings(X_test)
 
+    # Escalar los datos
+    scaler = StandardScaler()
+    train_features = scaler.fit_transform(train_features)
+    test_features = scaler.transform(test_features)
+
     return train_features, test_features, y_train, y_test
 
 def main(penalty, solver, C, max_iter, random_state=12345):
     train_features, test_features, y_train, y_test = load_data()
     
-    mlflow.set_experiment("ML-Model-1")
+    mlflow.set_experiment("review_prediction")
     with mlflow.start_run():
         mlflow.log_param("penalty", penalty)
         mlflow.log_param("solver", solver)
@@ -134,16 +140,18 @@ def main(penalty, solver, C, max_iter, random_state=12345):
         for metric_name, metric_value in metrics.items():
             mlflow.log_metric(metric_name, metric_value)
         
-        mlflow.sklearn.log_model(model, "trained_model") # model, folder
-    
+        # Registrar el modelo con un ejemplo de entrada
+        mlflow.sklearn.log_model(model, "trained_model", input_example=train_features[:5])
+
 # Configuración de los argumentos de línea de comandos
 if __name__ == '__main__':
     args = argparse.ArgumentParser()
     args.add_argument("--penalty", "-p", type=str, default='l2')
     args.add_argument("--solver", "-s", type=str, default='lbfgs')
     args.add_argument("--C", "-C", type=float, default=1)
-    args.add_argument("--max_iter", "-mi", type=int, default=200)
+    args.add_argument("--max_iter", "-mi", type=int, default=300)  # Incremento de max_iter
     parsed_args = args.parse_args()
     
     # Llamada a la función principal con los parámetros proporcionados
     main(parsed_args.penalty, parsed_args.solver, parsed_args.C, parsed_args.max_iter)
+
