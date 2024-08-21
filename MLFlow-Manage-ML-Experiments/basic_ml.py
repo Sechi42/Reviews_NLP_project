@@ -13,6 +13,8 @@ from tqdm.auto import tqdm
 from transformers import BertTokenizer, BertModel
 import transformers
 from sklearn.preprocessing import StandardScaler
+import mlflow.sklearn
+import pickle  # Para serializar el StandardScaler
 
 # Función para evaluar el rendimiento del clasificador
 def eval_function(actual, pred):
@@ -117,10 +119,10 @@ def load_data():
     train_features = scaler.fit_transform(train_features)
     test_features = scaler.transform(test_features)
 
-    return train_features, test_features, y_train, y_test
+    return train_features, test_features, y_train, y_test, scaler  # Devolvemos también el scaler
 
 def main(penalty, solver, C, max_iter, random_state=12345):
-    train_features, test_features, y_train, y_test = load_data()
+    train_features, test_features, y_train, y_test, scaler = load_data()
     
     mlflow.set_experiment("review_prediction")
     with mlflow.start_run():
@@ -139,7 +141,12 @@ def main(penalty, solver, C, max_iter, random_state=12345):
         # Registrar las métricas en MLflow
         for metric_name, metric_value in metrics.items():
             mlflow.log_metric(metric_name, metric_value)
+            
+        # Registrar el modelo y el StandardScaler en MLflow
+        with open("scaler.pkl", "wb") as f:
+            pickle.dump(scaler, f)
         
+        mlflow.log_artifact("scaler.pkl")  # Guarda el scaler como artefacto
         # Registrar el modelo con un ejemplo de entrada
         mlflow.sklearn.log_model(model, "trained_model", input_example=train_features[:5])
 
@@ -154,4 +161,5 @@ if __name__ == '__main__':
     
     # Llamada a la función principal con los parámetros proporcionados
     main(parsed_args.penalty, parsed_args.solver, parsed_args.C, parsed_args.max_iter)
+
 
