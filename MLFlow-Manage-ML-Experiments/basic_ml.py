@@ -14,28 +14,31 @@ from transformers import BertTokenizer, BertModel
 import transformers
 from sklearn.preprocessing import StandardScaler
 import mlflow.sklearn
-import pickle  # Para serializar el StandardScaler
+import pickle
 
-# Función para evaluar el rendimiento del clasificador
-def eval_function(actual, pred):
+mlflow.set_tracking_uri("http://127.0.0.1:5000")
+
+# Función para evaluar el rendimiento del modelo
+def eval_metrics(actual, pred):
     accuracy = accuracy_score(actual, pred)
     precision = precision_score(actual, pred, average='binary')
     recall = recall_score(actual, pred, average='binary')
     f1 = f1_score(actual, pred, average='binary')
 
-    metrics = {
+    # Imprimir métricas
+    print(f"Accuracy: {accuracy:.4f}")
+    print(f"Precision: {precision:.4f}")
+    print(f"Recall: {recall:.4f}")
+    print(f"F1 Score: {f1:.4f}")
+
+    return {
         'accuracy': accuracy,
         'precision': precision,
         'recall': recall,
         'f1_score': f1
     }
-    
-    for metric, value in metrics.items():
-        print(f"{metric.capitalize()}: {value:.4f}")
-    
-    return metrics
 
-# Función para cargar los datos
+# Función para cargar y procesar los datos
 def load_data():
     npz_path = r"C:\Users\evolu\Desktop\Sergio\DATA_SCIENTIST\Sprint_14\Project_14\MLFlow-Manage-ML-Experiments\datasets\features_9.npz"
     tsv_path = r"C:\Users\evolu\Desktop\Sergio\DATA_SCIENTIST\Sprint_14\Project_14\Experiments\imdb_reviews.tsv"
@@ -121,11 +124,13 @@ def load_data():
 
     return train_features, test_features, y_train, y_test, scaler  # Devolvemos también el scaler
 
-def main(penalty, solver, C, max_iter, random_state=12345):
+# Función principal para entrenamiento y registro en MLflow
+def mlflow_logging(penalty, solver, C, max_iter, random_state=12345):
     train_features, test_features, y_train, y_test, scaler = load_data()
     
     mlflow.set_experiment("review_prediction")
-    with mlflow.start_run():
+    with mlflow.start_run() as run:
+        mlflow.set_tracking_uri("http://127.0.0.1:5000")
         mlflow.log_param("penalty", penalty)
         mlflow.log_param("solver", solver)
         mlflow.log_param("C", C)
@@ -136,30 +141,34 @@ def main(penalty, solver, C, max_iter, random_state=12345):
         y_pred = model.predict(test_features)
         
         # Evaluar el modelo
-        metrics = eval_function(y_test, y_pred)
+        metrics = eval_metrics(y_test, y_pred)
         
-        # Registrar las métricas en MLflow
+        # Registrar las métricas en MLflow 
         for metric_name, metric_value in metrics.items():
             mlflow.log_metric(metric_name, metric_value)
             
-        # Registrar el modelo y el StandardScaler en MLflow
-        with open("scaler.pkl", "wb") as f:
+        # Crear el directorio de artefactos si no existe
+        artifact_dir = "artifacts/"
+        os.makedirs(artifact_dir, exist_ok=True)
+
+        # Guardar y registrar el scaler como artefacto
+        scaler_path = os.path.join(artifact_dir, "scaler.pkl")
+        with open(scaler_path, "wb") as f:
             pickle.dump(scaler, f)
         
-        mlflow.log_artifact("scaler.pkl")  # Guarda el scaler como artefacto
+        mlflow.log_artifact(scaler_path)  # Guarda el scaler como artefacto
+
         # Registrar el modelo con un ejemplo de entrada
-        mlflow.sklearn.log_model(model, "trained_model", input_example=train_features[:5])
+        mlflow.sklearn.log_model(model, "trained_model")
 
-# Configuración de los argumentos de línea de comandos
-if __name__ == '__main__':
-    args = argparse.ArgumentParser()
-    args.add_argument("--penalty", "-p", type=str, default='l2')
-    args.add_argument("--solver", "-s", type=str, default='lbfgs')
-    args.add_argument("--C", "-C", type=float, default=1)
-    args.add_argument("--max_iter", "-mi", type=int, default=300)  # Incremento de max_iter
-    parsed_args = args.parse_args()
-    
-    # Llamada a la función principal con los parámetros proporcionados
-    main(parsed_args.penalty, parsed_args.solver, parsed_args.C, parsed_args.max_iter)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Entrenamiento de un modelo de regresión logística con MLflow')
+    parser.add_argument('--penalty', type=str, default='l2', help='Tipo de penalización (l1 o l2)')
+    parser.add_argument('--solver', type=str, default='liblinear', help='Algoritmo de optimización (liblinear, sag, etc.)')
+    parser.add_argument('--C', type=float, default=1.0, help='Parámetro de regularización')
+    parser.add_argument('--max_iter', type=int, default=100, help='Número máximo de iteraciones')
+    parser.add_argument('--random_state', type=int, default=12345, help='Semilla para la aleatoriedad')
 
+    args = parser.parse_args()
 
+    mlflow_logging(args.penalty, args.solver, args.C, args.max_iter, args.random_state)
