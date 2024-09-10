@@ -9,10 +9,10 @@ import math
 import pickle
 import mlflow.pyfunc
 
-logged_model = 'runs:/790ff2d5e76f4fc8bc64db8af689ed20/trained_model'
+logged_model = 'runs:/c19ce66d76604e6c8bf4dee8aacf064b/trained_model'
 loaded_model = mlflow.pyfunc.load_model(logged_model)
 
-artifact_uri = 'runs:/790ff2d5e76f4fc8bc64db8af689ed20/scaler.pkl'
+artifact_uri = 'runs:/c19ce66d76604e6c8bf4dee8aacf064b/scaler.pkl'
 local_scaler_path = mlflow.artifacts.download_artifacts(artifact_uri)
 
 # Cargar el scaler desde el archivo descargado

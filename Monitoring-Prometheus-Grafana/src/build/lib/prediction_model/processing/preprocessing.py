@@ -37,7 +37,7 @@ import math
 import numpy as np
 
 class BERTTextEmbeddingsTransformer(BaseEstimator, TransformerMixin):
-    def __init__(self, max_length=512, batch_size=8, force_device=None, disable_progress_bar=False, column_name=None):
+    def __init__(self, max_length=512, batch_size=100, force_device=None, disable_progress_bar=True, column_name=None):
         self.max_length = max_length
         self.batch_size = batch_size
         self.force_device = force_device
